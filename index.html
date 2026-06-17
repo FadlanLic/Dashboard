@@ -310,15 +310,6 @@ var osmTile = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 
 var satTile = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {attribution:'&copy; Esri', maxZoom:19});
 satTile.addTo(map);
 
-function getCentroid(geom) {
-  var coords = [];
-  if (geom.type === 'Polygon') coords = geom.coordinates[0];
-  else if (geom.type === 'MultiPolygon') coords = geom.coordinates[0][0];
-  var cx = 0, cy = 0;
-  for (var i = 0; i < coords.length; i++) { cx += coords[i][0]; cy += coords[i][1]; }
-  return [cy / coords.length, cx / coords.length];
-}
-
 function renderMap() {
   if (polyLayer) map.removeLayer(polyLayer);
   if (mkLayer) map.removeLayer(mkLayer);
@@ -493,14 +484,14 @@ function updateDashboard(text) {
     setEl('kpi-plots-unit', 'Trial 1: ' + kpiMap.trial1.value + ' · Trial 2: ' + kpiMap.trial2.value);
   }
   if (kpiMap.avg_ch4 && kpiMap.avg_ch4.delta) {
-    var d = kpiMap.avg_ch4.delta;
-    var el = document.getElementById('kpi-ch4-delta');
-    if (el) { el.textContent = (d[0]==='+' ? '↑ ':'↓ ') + d + ' vs prev'; el.className = 'delta '+(d[0]==='+' ? 'delta-up':'delta-dn'); }
+    var dCh4 = kpiMap.avg_ch4.delta;                                    // FIX2: rename var
+    var elCh4 = document.getElementById('kpi-ch4-delta');
+    if (elCh4) { elCh4.textContent = (dCh4[0]==='+' ? '↑ ':'↓ ') + dCh4 + ' vs prev'; elCh4.className = 'delta '+(dCh4[0]==='+' ? 'delta-up':'delta-dn'); }
   }
   if (kpiMap.avg_n2o && kpiMap.avg_n2o.delta) {
-    var d = kpiMap.avg_n2o.delta;
-    var el = document.getElementById('kpi-n2o-delta');
-    if (el) { el.textContent = (d[0]==='-' ? '↓ ':'↑ ') + d + ' vs prev'; el.className = 'delta '+(d[0]==='-' ? 'delta-dn':'delta-up'); }
+    var dN2o = kpiMap.avg_n2o.delta;                                    // FIX2: rename var
+    var elN2o = document.getElementById('kpi-n2o-delta');
+    if (elN2o) { elN2o.textContent = (dN2o[0]==='-' ? '↓ ':'↑ ') + dN2o + ' vs prev'; elN2o.className = 'delta '+(dN2o[0]==='-' ? 'delta-dn':'delta-up'); }
   }
 
   // Time series — sort by date
@@ -529,17 +520,31 @@ function updateDashboard(text) {
   md.forEach(function(d) { mapDataLookup[d.plot_code] = d; });
   renderMap();
 
-  // Scatter by irrigation group
-  var trLabelMap = {};
-  tr.forEach(function(d) { trLabelMap[d.treatment] = d.label; });
+  // FIX3: Stage chart update dari MapData
+  var stageTotals = {Vegetative:[], Tillering:[], Flowering:[], Ripening:[], Harvesting:[]};
+  md.forEach(function(d) {
+    var ch4 = parseFloat(d.ch4_flux);
+    var stage = d.growth_stage;
+    if (!isNaN(ch4) && stage && stageTotals[stage]) {
+      stageTotals[stage].push(ch4);
+    }
+  });
+  var stageAvg = Object.keys(stageTotals).map(function(s) {
+    var arr = stageTotals[s];
+    return arr.length > 0 ? parseFloat((arr.reduce(function(a,b){return a+b;},0)/arr.length).toFixed(2)) : 0;
+  });
+  charts.stage.data.datasets[0].data = stageAvg;
+  charts.stage.update();
+
+  // FIX6: Scatter pakai IRI_TEXT dari MapData langsung (bukan dari label treatment)
   var fd=[], ad=[], dd=[];
   md.forEach(function(d) {
     var ch4 = parseFloat(d.ch4_flux), dap = parseFloat(d.dap);
     if (!isNaN(ch4) && !isNaN(dap)) {
-      var label = trLabelMap[d.treatment] || '';
+      var iri = (d.iri_text || '').toUpperCase();  // FIX6: pakai field IRI_TEXT
       var pt = {x:dap, y:ch4};
-      if (label.indexOf('Flood')>=0) fd.push(pt);
-      else if (label.indexOf('AWD')>=0) ad.push(pt);
+      if (iri === 'FLOOD') fd.push(pt);
+      else if (iri === 'AWD') ad.push(pt);
       else dd.push(pt);
     }
   });
@@ -557,16 +562,14 @@ function fetchData() {
     .then(function(t) { updateDashboard(t); })
     .catch(function(e) {
       console.error('Fetch failed:', e);
-      var badge = document.getElementById('badge-treatments');
-      if (badge) badge.textContent = 'Offline mode';
+      badge.textContent = 'Offline mode';  // FIX2: pakai badge yg sudah ada, bukan deklarasi ulang
     });
 }
 
-// Init
-renderMap();
-map.invalidateSize();
+// Init — urutan diperbaiki
+map.invalidateSize();  // FIX5: invalidateSize dulu sebelum render
 initCharts();
-fetchData();
+fetchData();           // FIX1: fetchData akan panggil renderMap() sendiri
 
 document.querySelectorAll('.filter-btn').forEach(function(btn) {
   btn.addEventListener('click', function() {
