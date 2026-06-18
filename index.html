@@ -169,6 +169,13 @@ body{font-family:'Poppins',Helvetica,Arial,sans-serif;background:var(--bg);color
 .plot-label-tip::before{display:none!important}
 
 .footer{font-size:10px;color:var(--text3);display:flex;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap;font-weight:400}
+.ptab-nav{display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--border)}
+.ptab-btn{font-size:12px;font-weight:600;padding:8px 20px;border:none;background:transparent;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'Poppins',sans-serif;letter-spacing:.02em;transition:all .15s}
+.ptab-btn:hover{color:var(--gold)}
+.ptab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.ptab-content{display:none}
+.ptab-content.active{display:block}
+.zero-line{border-color:rgba(239,75,63,0.4);border-width:1px;border-dash-array:4}
 </style>
 </head>
 <body>
@@ -192,13 +199,14 @@ body{font-family:'Poppins',Helvetica,Arial,sans-serif;background:var(--bg);color
     <button class="filter-btn active" id="tab-season1" onclick="switchSeason('season1')">Season 1 — Wet season</button>
     <button class="filter-btn" id="tab-season2" onclick="switchSeason('season2')">Season 2 — Dry season</button>
   </div>
-  <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
-    <span style="font-size:11px;color:var(--text2);font-weight:500">Week filter:</span>
-    <select id="week-select" onchange="switchWeek(this.value)" style="font-size:11px;padding:5px 12px;border-radius:20px;border:1.5px solid var(--gold);background:var(--gold-pale);color:var(--gold-dark);cursor:pointer;font-family:'Poppins',sans-serif;font-weight:500">
-      <option value="all">All weeks</option>
-    </select>
-    <span id="week-hint" style="font-size:10px;color:var(--text3);font-style:italic">All weeks · showing overall averages</span>
+
+  <div class="ptab-nav">
+    <button class="ptab-btn active" id="ptab-dashboard-btn" onclick="switchPageTab('dashboard')">&#9783; Dashboard</button>
+    <button class="ptab-btn" id="ptab-fieldmap-btn" onclick="switchPageTab('fieldmap')">&#9432; Field Map</button>
   </div>
+
+  <div id="ptab-dashboard" class="ptab-content active">
+
   <div class="metric-row">
     <div class="metric"><div class="lbl">AVG CH&#8324; FLUX</div><div class="val" id="kpi-ch4-val">-</div><div class="unit">mg CH&#8324; m&#8315;&#178; day&#8315;&#185;</div><div class="delta" id="kpi-ch4-delta">loading...</div></div>
     <div class="metric"><div class="lbl">AVG N&#8322;O FLUX</div><div class="val" id="kpi-n2o-val">-</div><div class="unit">mg N&#8322;O m&#8315;&#178; day&#8315;&#185;</div><div class="delta" id="kpi-n2o-delta">loading...</div></div>
@@ -211,33 +219,25 @@ body{font-family:'Poppins',Helvetica,Arial,sans-serif;background:var(--bg);color
     <div class="card"><div class="card-title">CH&#8324; &amp; N&#8322;O flux over time</div><div style="position:relative;height:170px"><canvas id="chartLine"></canvas></div></div>
     <div class="card"><div class="card-title">Avg CH&#8324; flux by treatment</div><div style="position:relative;height:170px"><canvas id="chartBar"></canvas></div></div>
   </div>
-  <div class="grid-3">
-    <div class="card"><div class="card-title">Flux by growth stage</div><div style="position:relative;height:140px"><canvas id="chartStage"></canvas></div></div>
-    <div class="card"><div class="card-title">Water mgmt vs CH&#8324;</div><div style="position:relative;height:140px"><canvas id="chartScatter"></canvas></div></div>
-    <div class="card">
-      <div class="card-title">Data completeness</div>
-      <div style="padding-top:4px">
-        <div class="prog-item"><span class="prog-lbl">T01-T02</span><div class="prog-bg"><div class="prog-bar" style="width:92%;background:var(--green-light)"></div></div><span class="prog-val">92%</span></div>
-        <div class="prog-item"><span class="prog-lbl">T03-T04</span><div class="prog-bg"><div class="prog-bar" style="width:80%;background:var(--green-light)"></div></div><span class="prog-val">80%</span></div>
-        <div class="prog-item"><span class="prog-lbl">T05-T06</span><div class="prog-bg"><div class="prog-bar" style="width:74%;background:var(--gold)"></div></div><span class="prog-val">74%</span></div>
-        <div class="prog-item"><span class="prog-lbl">T07-T08</span><div class="prog-bg"><div class="prog-bar" style="width:55%;background:var(--red)"></div></div><span class="prog-val">55%</span></div>
-      </div>
-    </div>
-  </div>
-  <div class="section-hdr">Field map &#8212; Grobogan Trial 1 (real polygon from shapefile)</div>
+
+  
+  </div><!-- /ptab-dashboard -->
+
+  <div id="ptab-fieldmap" class="ptab-content">
+  <div class="section-hdr">Field map &#8212; Grobogan Trial 1</div>
   <div class="map-wrap">
     <div class="map-toprow">
-      <div class="card-title" style="margin-bottom:0">Plot map &middot; 39 plots &middot; real GeoJSON from QGIS</div>
-      <div class="map-meta">Last flight: Sep 24, 2025</div>
+      <div class="card-title" style="margin-bottom:0">Plot map &middot; real GeoJSON from QGIS</div>
+      <div class="map-meta" id="map-flight-date">Last flight: Sep 24, 2025</div>
     </div>
     <div class="layer-row">
       <span class="layer-lbl">Layers:</span>
-      <button class="ltoggle" id="btn-treatment" onclick="toggleLayer('treatment')">Treatment</button>
-      <button class="ltoggle" id="btn-label" onclick="toggleLayer('label')">Plot label</button>
-      <button class="ltoggle" id="btn-ndvi" onclick="toggleLayer('ndvi')">NDVI</button>
-      <button class="ltoggle" id="btn-stage" onclick="toggleLayer('stage')">Growth stage</button>
-      <button class="ltoggle" id="btn-trial2" onclick="toggleLayer('trial2')">Show Trial 2</button>
       <button class="ltoggle on" id="btn-satellite" onclick="toggleBasemap()">Satellite</button>
+      <button class="ltoggle" id="btn-treatment" onclick="toggleLayer('treatment')">Treatment</button>
+      <button class="ltoggle" id="btn-trial2" onclick="toggleLayer('trial2')">Trial 2</button>
+      <button class="ltoggle" id="btn-label" onclick="toggleLayer('label')">Plot code</button>
+      <button class="ltoggle" id="btn-stage" onclick="toggleLayer('stage')">Growth stage</button>
+      <button class="ltoggle" id="btn-ndvi" onclick="toggleLayer('ndvi')">NDVI</button>
     </div>
     <div class="map-grid">
       <div id="map"></div>
@@ -252,7 +252,11 @@ body{font-family:'Poppins',Helvetica,Arial,sans-serif;background:var(--bg);color
           <div class="leg-item"><div class="leg-sw" style="background:#7B2D8B"></div>T06 AWD I-50 TLL</div>
           <div class="leg-item"><div class="leg-sw" style="background:#E91E8C"></div>T07 AWD I-32 Farmer</div>
           <div class="leg-item"><div class="leg-sw" style="background:#114B5F"></div>T08 AWD I-32 TLL</div>
-          <div style="margin-top:6px;font-size:9px;color:var(--text3);font-family:monospace">Dashed border = Trial 2</div>
+          <div class="leg-item"><div class="leg-sw" style="background:#00B4D8"></div>T09 DRIP I-50 Farmer</div>
+          <div class="leg-item"><div class="leg-sw" style="background:#06D6A0"></div>T10 DRIP I-50 TLL</div>
+          <div class="leg-item"><div class="leg-sw" style="background:#FFD166"></div>T11 DRIP I-32 Farmer</div>
+          <div class="leg-item"><div class="leg-sw" style="background:#EF476F"></div>T12 DRIP I-32 TLL</div>
+
         </div>
         <div class="panel" id="ndviPanel" style="display:none">
           <div class="panel-title">NDVI scale</div>
@@ -261,11 +265,12 @@ body{font-family:'Poppins',Helvetica,Arial,sans-serif;background:var(--bg);color
         </div>
         <div class="panel" id="stagePanel">
           <div class="panel-title">Growth stage</div>
-          <div class="leg-item"><div class="leg-sw" style="background:#85B7EB;border-radius:50%"></div>Vegetative</div>
-          <div class="leg-item"><div class="leg-sw" style="background:#97C459;border-radius:50%"></div>Tillering</div>
-          <div class="leg-item"><div class="leg-sw" style="background:#EF9F27;border-radius:50%"></div>Flowering</div>
-          <div class="leg-item"><div class="leg-sw" style="background:#E24B4A;border-radius:50%"></div>Harvest</div>
-          <div style="font-size:9px;color:var(--text3);font-family:monospace;margin-top:4px">Overrides treatment color</div>
+          <div class="stage-item"><div class="stage-dot" style="background:#85B7EB"></div>Vegetative</div>
+          <div class="stage-item"><div class="stage-dot" style="background:#97C459"></div>Tillering</div>
+          <div class="stage-item"><div class="stage-dot" style="background:#EF9F27"></div>Flowering</div>
+          <div class="stage-item"><div class="stage-dot" style="background:#F4A261"></div>Ripening</div>
+          <div class="stage-item"><div class="stage-dot" style="background:#E24B4A"></div>Harvesting</div>
+          <div style="font-size:9px;color:var(--text3);margin-top:4px">Overrides treatment color</div>
         </div>
         <div class="panel" id="selectedPanel" style="display:none">
           <div class="panel-title">Selected plot</div>
@@ -274,23 +279,87 @@ body{font-family:'Poppins',Helvetica,Arial,sans-serif;background:var(--bg);color
       </div>
     </div>
   </div>
-  <div class="section-hdr">Latest observations</div>
-  <div class="card" style="margin-bottom:16px">
-    <table class="obs-table">
-      <thead><tr><th>Date &middot; Plot</th><th>Treatment</th><th>CH&#8324; flux</th><th>N&#8322;O flux</th><th>Stage</th><th>Status</th></tr></thead>
-      <tbody>
-        <tr><td>12 Jun &middot; T05-R1</td><td>AWD I-50 Farmer</td><td>12.1</td><td>0.48</td><td>Vegetative</td><td><span class="pill normal">Normal</span></td></tr>
-        <tr><td>12 Jun &middot; T04-R3</td><td>Flood I-32 TLL</td><td>28.9</td><td>0.92</td><td>Flowering</td><td><span class="pill high">High</span></td></tr>
-        <tr><td>11 Jun &middot; T02-R3</td><td>Flood I-50 TLL</td><td>27.3</td><td>0.88</td><td>Flowering</td><td><span class="pill high">High</span></td></tr>
-        <tr><td>11 Jun &middot; T08-R2</td><td>AWD I-32 TLL</td><td>10.5</td><td>0.44</td><td>Vegetative</td><td><span class="pill normal">Normal</span></td></tr>
-        <tr><td>10 Jun &middot; T06-R3</td><td>-</td><td>-</td><td>-</td><td>-</td><td><span class="pill pending">Pending</span></td></tr>
-      </tbody>
-    </table>
+  </div><!-- /ptab-fieldmap -->
+
+  <div id="ptab-dashboard-extra" class="ptab-content active">
+
+  <div class="section-hdr">Environment</div>
+  <div class="grid-2" style="margin-bottom:12px">
+    <div class="card">
+      <div class="card-title">Rainfall &amp; temperature</div>
+      <div style="position:relative;height:160px"><canvas id="chartWeather"></canvas></div>
+      <div style="display:flex;gap:16px;margin-top:6px;font-size:10px;color:var(--text3)">
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:10px;background:#4361EE;border-radius:2px;display:inline-block"></span>Rainfall (mm)</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;border-top:2px solid #E85D04;display:inline-block"></span>Max temp (°C)</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;border-top:2px dashed #1D9E75;display:inline-block"></span>Min temp (°C)</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Water depth by treatment (avg per measurement day)</div>
+      <div style="position:relative;height:160px"><canvas id="chartWaterDepth"></canvas></div>
+      <div style="font-size:10px;color:var(--text3);margin-top:4px">Negatif = di bawah permukaan tanah · 0 = saturasi</div>
+    </div>
   </div>
+
+  <div class="section-hdr">Soil chemistry</div>
+  <div class="grid-2" style="margin-bottom:12px">
+    <div class="card">
+      <div class="card-title">Redox potential &amp; pH</div>
+      <div style="position:relative;height:160px"><canvas id="chartSoilChem"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Soil temperature</div>
+      <div style="position:relative;height:160px"><canvas id="chartSoilTemp"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-hdr">Agronomy</div>
+  <div class="grid-2" style="margin-bottom:12px">
+    <div class="card">
+      <div class="card-title">Plant height by treatment (cm)</div>
+      <div style="position:relative;height:160px"><canvas id="chartPlantHeight"></canvas></div>
+      <div style="font-size:10px;color:var(--text3);margin-top:4px">Measured at DAP 20, 40, 60, 80 · each line = 1 treatment</div>
+    </div>
+    <div class="card">
+      <div class="card-title">No. of tillers by treatment</div>
+      <div style="position:relative;height:160px"><canvas id="chartTillers"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-hdr">Harvest outcomes</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">
+    <div class="metric" style="border-top-color:var(--green)">
+      <div class="lbl">BEST FILLED GRAIN %</div>
+      <div class="val" id="kpi-harvest-grain">-</div>
+      <div class="unit">% filled grain</div>
+      <div class="delta delta-neu" id="kpi-harvest-grain-t">-</div>
+    </div>
+    <div class="metric" style="border-top-color:var(--green)">
+      <div class="lbl">BEST 1000-SEED WEIGHT</div>
+      <div class="val" id="kpi-harvest-seed">-</div>
+      <div class="unit">gram</div>
+      <div class="delta delta-neu" id="kpi-harvest-seed-t">-</div>
+    </div>
+    <div class="metric" style="border-top-color:var(--green)">
+      <div class="lbl">BEST GRAINS / PANICLE</div>
+      <div class="val" id="kpi-harvest-grain-pan">-</div>
+      <div class="unit">grains per panicle</div>
+      <div class="delta delta-neu" id="kpi-harvest-grain-pan-t">-</div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-title">Harvest outcomes by treatment</div>
+    <div style="position:relative;height:200px"><canvas id="chartHarvest"></canvas></div>
+    <div style="display:flex;gap:16px;margin-top:6px;font-size:10px;color:var(--text3)">
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:10px;background:var(--green);border-radius:2px;display:inline-block"></span>Filled grain (%)</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:10px;background:var(--gold);border-radius:2px;display:inline-block"></span>1000-seed weight (g)</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:10px;background:#4361EE;border-radius:2px;display:inline-block"></span>Grains/panicle ÷ 10</span>
+    </div>
+  </div>
+
   <div class="footer">
     <span>Source: Google Sheets (manual refresh)</span>
     <span>Map: real polygon from QGIS shapefile</span>
-    <span>Trial 2: 7 isolated plots (north area)</span>
     <span>Sep 24, 2025</span>
   </div>
 </div>
@@ -353,7 +422,7 @@ function ndviColor(v) {
 
 // ── State ──
 var currentSeason = 'season1';
-var currentWeek   = 'all';
+
 var cachedData    = {};     // semua data dari CSV, cached sekali
 var mapLayers     = {treatment:false, label:false, ndvi:false, stage:false, trial2:false, satellite:true};
 var mapDataLookup = {};
@@ -432,6 +501,27 @@ window.toggleBasemap = function() {
   else { osmTile.addTo(map); map.removeLayer(satTile); }
 };
 
+// ── Page tab switch ──
+window.switchPageTab = function(name) {
+  ['dashboard','fieldmap'].forEach(function(t) {
+    document.getElementById('ptab-'+t+'-btn').classList.toggle('active', t===name);
+  });
+  // Show/hide content divs
+  var dashEl = document.getElementById('ptab-dashboard');
+  var dashExEl = document.getElementById('ptab-dashboard-extra');
+  var mapEl = document.getElementById('ptab-fieldmap');
+  if (name === 'fieldmap') {
+    if (dashEl) dashEl.style.display='none';
+    if (dashExEl) dashExEl.style.display='none';
+    if (mapEl) mapEl.style.display='block';
+    setTimeout(function(){ map.invalidateSize(); }, 100);
+  } else {
+    if (dashEl) dashEl.style.display='block';
+    if (dashExEl) dashExEl.style.display='block';
+    if (mapEl) mapEl.style.display='none';
+  }
+};
+
 // ── Season & week switch ──
 window.switchSeason = function(s) {
   currentSeason = s;
@@ -444,12 +534,7 @@ window.switchSeason = function(s) {
   }
 };
 
-window.switchWeek = function(w) {
-  currentWeek = w;
-  var hint = w === 'all' ? 'All weeks · showing overall averages' : 'Week ' + w + ' · filtered view';
-  document.getElementById('week-hint').textContent = hint;
-  if (Object.keys(cachedData).length > 0) renderKPI(); renderCharts();
-};
+
 
 // ── Helper: filter cached data by season ──
 function bySeason(arr) {
@@ -458,16 +543,17 @@ function bySeason(arr) {
   });
 }
 
-function byWeek(arr) {
-  if (currentWeek === 'all') return arr;
-  return arr.filter(function(d) { return String(d.week) === String(currentWeek); });
-}
+
 
 // ── Render all non-map sections ──
 function renderAll() {
   renderMeta();
   renderKPI();
   renderCharts();
+  renderEnvironment();
+  renderSoilChem();
+  renderAgronomy();
+  renderHarvest();
   renderMapData();
 }
 
@@ -494,23 +580,10 @@ function formatDate(d) {
 
 function renderKPI() {
   var kpiData = bySeason(cachedData.kpi || []);
-  var tsData  = byWeek(bySeason(cachedData.ts || []));
+  var tsData  = bySeason(cachedData.ts || []);
 
   // KPI values: jika week dipilih → hitung avg dari TimeSeries filtered
-  if (currentWeek !== 'all' && tsData.length > 0) {
-    var ch4vals = tsData.map(function(d){return parseFloat(d.avg_ch4);}).filter(function(v){return !isNaN(v);});
-    var n2ovals = tsData.map(function(d){return parseFloat(d.avg_n2o);}).filter(function(v){return !isNaN(v);});
-    var avgCh4 = ch4vals.length > 0 ? (ch4vals.reduce(function(a,b){return a+b;},0)/ch4vals.length).toFixed(2) : '-';
-    var avgN2o = n2ovals.length > 0 ? (n2ovals.reduce(function(a,b){return a+b;},0)/n2ovals.length).toFixed(2) : '-';
-    setEl('kpi-ch4-val', avgCh4);
-    setEl('kpi-n2o-val', avgN2o);
-    setEl('kpi-obs-val', tsData.length + ' rows');
-    setEl('kpi-obs-delta', 'Week ' + currentWeek);
-    var elCh4 = document.getElementById('kpi-ch4-delta');
-    if (elCh4) { elCh4.textContent = 'Week ' + currentWeek + ' average'; elCh4.className = 'delta delta-neu'; }
-    var elN2o = document.getElementById('kpi-n2o-delta');
-    if (elN2o) { elN2o.textContent = 'Week ' + currentWeek + ' average'; elN2o.className = 'delta delta-neu'; }
-  } else {
+  {
     var kpiMap = {};
     kpiData.forEach(function(d) { kpiMap[d.metric] = d; });
     if (kpiMap.avg_ch4) { setEl('kpi-ch4-val', parseFloat(kpiMap.avg_ch4.value).toFixed(2)); }
@@ -534,88 +607,31 @@ function renderKPI() {
 }
 
 function renderCharts() {
-  var ts = byWeek(bySeason(cachedData.ts || []));
+  var ts = bySeason(cachedData.ts || []);
   var tr = bySeason(cachedData.treatment || []);
   var md = bySeason(cachedData.mapData || []);
 
-  // Sort time series by week number
+  // Sort by week number
   ts.sort(function(a,b) { return parseInt(a.week) - parseInt(b.week); });
 
-  // Populate week dropdown dynamically dari data
-  var weekSel = document.getElementById('week-select');
-  var currentVal = weekSel.value;
-  var weeks = ts.map(function(d) { return d.week; })
-               .filter(function(w) { return w !== undefined && w !== ''; });
-  var uniqueWeeks = weeks.filter(function(w,i,arr) { return arr.indexOf(w) === i; });
-  weekSel.innerHTML = '<option value="all">All weeks</option>';
-  uniqueWeeks.forEach(function(w) {
-    var opt = document.createElement('option');
-    opt.value = w;
-    opt.textContent = 'Week ' + w;
-    if (String(w) === String(currentVal)) opt.selected = true;
-    weekSel.appendChild(opt);
-  });
+  // Line chart: x = week number, title = "Week"
+  if (charts.line) {
+    charts.line.data.labels = ts.map(function(d) { return d.week; });
+    charts.line.data.datasets[0].data = ts.map(function(d) { return d.avg_ch4!=='' ? parseFloat(d.avg_ch4) : null; });
+    charts.line.data.datasets[1].data = ts.map(function(d) { return d.avg_n2o!=='' ? parseFloat(d.avg_n2o) : null; });
+    charts.line.update();
+  }
 
-  // Line chart — x axis: week jika ada, fallback ke date
-  var labels = ts.map(function(d) {
-    if (d.week !== undefined && d.week !== '') return 'Wk ' + d.week;
-    var dt = new Date(d.date);
-    return (dt.getMonth()+1) + '/' + dt.getDate();
-  });
-  charts.line.data.labels = labels;
-  charts.line.data.datasets[0].data = ts.map(function(d) { return d.avg_ch4!=='' ? parseFloat(d.avg_ch4) : null; });
-  charts.line.data.datasets[1].data = ts.map(function(d) { return d.avg_n2o!=='' ? parseFloat(d.avg_n2o) : null; });
-  charts.line.update();
-
-  // Treatment bar — filtered by season only (week tidak relevan per treatment)
-  charts.bar.data.labels = tr.map(function(d) { return d.treatment; });
-  charts.bar.data.datasets[0].data = tr.map(function(d) { return d.avg_ch4!=='' ? parseFloat(d.avg_ch4) : null; });
-  charts.bar.data.datasets[0].backgroundColor = tr.map(function(d) { return treatColors[d.treatment]||'#888'; });
-  charts.bar.update();
+  // Treatment bar chart
+  if (charts.bar) {
+    charts.bar.data.labels = tr.map(function(d) { return d.treatment; });
+    charts.bar.data.datasets[0].data = tr.map(function(d) { return d.avg_ch4!=='' ? parseFloat(d.avg_ch4) : null; });
+    charts.bar.data.datasets[0].backgroundColor = tr.map(function(d) { return treatColors[d.treatment]||'#888'; });
+    charts.bar.update();
+  }
 
   var badge = document.getElementById('badge-treatments');
   if (badge) badge.textContent = tr.length + ' treatments active';
-
-  // Stage chart
-  var stageTotals = {Vegetative:[], Tillering:[], Flowering:[], Ripening:[], Harvesting:[]};
-  md.forEach(function(d) {
-    var ch4 = parseFloat(d.ch4_flux);
-    var stage = d.growth_stage;
-    if (!isNaN(ch4) && stage && stageTotals[stage]) stageTotals[stage].push(ch4);
-  });
-  charts.stage.data.datasets[0].data = Object.keys(stageTotals).map(function(s) {
-    var arr = stageTotals[s];
-    return arr.length > 0 ? parseFloat((arr.reduce(function(a,b){return a+b;},0)/arr.length).toFixed(2)) : 0;
-  });
-  charts.stage.update();
-
-  // Scatter — filtered by season only
-  var fd=[], ad=[], dd=[];
-  var trLabelMap = {};
-  tr.forEach(function(d) { trLabelMap[d.treatment] = d.label; });
-  md.forEach(function(d) {
-    var ch4 = parseFloat(d.ch4_flux), dap = parseFloat(d.dap);
-    if (!isNaN(ch4) && !isNaN(dap)) {
-      var iri = (d.iri_text||'').toUpperCase();
-      var pt = {x:dap, y:ch4};
-      if (iri==='FLOOD') fd.push(pt);
-      else if (iri==='AWD') ad.push(pt);
-      else dd.push(pt);
-    }
-  });
-  charts.scatter.data.datasets[0].data = fd;
-  charts.scatter.data.datasets[1].data = ad;
-  charts.scatter.data.datasets[2].data = dd;
-  charts.scatter.update();
-}
-
-function renderMapData() {
-  // Filter MapData berdasarkan season aktif
-  // Kalau season tidak punya data → mapDataLookup kosong → polygon tampil abu-abu (normal)
-  var md = bySeason(cachedData.mapData || []);
-  mapDataLookup = {};
-  md.forEach(function(d) { mapDataLookup[d.plot_code] = d; });
-  renderMap();
 }
 
 // ── Chart init ──
@@ -629,41 +645,113 @@ function initCharts() {
     options:{responsive:true, maintainAspectRatio:false,
       plugins:{legend:{display:false}},
       scales:{
-        y:{title:{display:true,text:'CH4 (mg/m2/d)',font:{size:10}}, ticks:{font:{size:10}}},
-        y2:{position:'right', title:{display:true,text:'N2O',font:{size:10}}, ticks:{font:{size:10}}, grid:{drawOnChartArea:false}}
+        x:{title:{display:true, text:'Week', font:{size:10}}, ticks:{font:{size:9}}},
+        y:{title:{display:true, text:'CH4 (mg/m\u00b2/d)', font:{size:10}}, ticks:{font:{size:10}}},
+        y2:{position:'right', title:{display:true, text:'N2O', font:{size:10}}, ticks:{font:{size:10}}, grid:{drawOnChartArea:false}}
       }
     }
   });
+
   charts.bar = new Chart(document.getElementById('chartBar'), {
     type:'bar',
     data:{labels:[], datasets:[{label:'CH4', data:[], backgroundColor:[]}]},
     options:{responsive:true, maintainAspectRatio:false,
       plugins:{legend:{display:false}},
-      scales:{x:{ticks:{font:{size:9}}}, y:{ticks:{font:{size:10}}, title:{display:true,text:'mg/m2/d',font:{size:10}}}}
+      scales:{
+        x:{ticks:{font:{size:9}}},
+        y:{title:{display:true, text:'mg/m\u00b2/d', font:{size:10}}, ticks:{font:{size:10}}}
+      }
     }
   });
-  charts.stage = new Chart(document.getElementById('chartStage'), {
-    type:'bar',
-    data:{labels:['Vegetative','Tillering','Flowering','Ripening','Harvesting'],
-      datasets:[{data:[0,0,0,0,0], backgroundColor:['#85B7EB','#97C459','#EF9F27','#F4A261','#E24B4A']}]},
+
+  charts.weather = new Chart(document.getElementById('chartWeather'), {
+    data:{labels:[], datasets:[
+      {type:'bar',  label:'Rainfall (mm)', data:[], backgroundColor:'rgba(67,97,238,0.6)', yAxisID:'y'},
+      {type:'line', label:'Max temp',      data:[], borderColor:'#E85D04', tension:0.3, yAxisID:'y2', pointRadius:2},
+      {type:'line', label:'Min temp',      data:[], borderColor:'#1D9E75', tension:0.3, yAxisID:'y2', borderDash:[4,3], pointRadius:2}
+    ]},
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{
+        x:{title:{display:true, text:'Date', font:{size:10}}, ticks:{font:{size:9}, maxRotation:45}},
+        y:{title:{display:true, text:'mm', font:{size:9}}, ticks:{font:{size:9}}},
+        y2:{position:'right', title:{display:true, text:'\u00b0C', font:{size:9}}, ticks:{font:{size:9}}, grid:{drawOnChartArea:false}}
+      }
+    }
+  });
+
+  charts.waterDepth = new Chart(document.getElementById('chartWaterDepth'), {
+    type:'line',
+    data:{labels:[], datasets:[]},
     options:{responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{x:{ticks:{font:{size:9}}}, y:{ticks:{font:{size:10}}, title:{display:true,text:'mg/m2/d',font:{size:10}}}}
+      plugins:{legend:{labels:{font:{size:9}, boxWidth:8}}},
+      scales:{
+        x:{title:{display:true, text:'Week', font:{size:10}}, ticks:{font:{size:9}}},
+        y:{title:{display:true, text:'cm', font:{size:9}}, ticks:{font:{size:9}}}
+      }
     }
   });
-  charts.scatter = new Chart(document.getElementById('chartScatter'), {
-    type:'scatter',
-    data:{datasets:[
-      {label:'Flood', data:[], backgroundColor:'#D2691E'},
-      {label:'AWD',   data:[], backgroundColor:'#1D9E75'},
-      {label:'DRIP',  data:[], backgroundColor:'#00B4D8'}
+
+  charts.soilChem = new Chart(document.getElementById('chartSoilChem'), {
+    type:'line',
+    data:{labels:[], datasets:[
+      {label:'Redox (mV)', data:[], borderColor:'#8B4513', tension:0.3, yAxisID:'y', pointRadius:2},
+      {label:'pH',         data:[], borderColor:'#4361EE', tension:0.3, yAxisID:'y2', pointRadius:2}
     ]},
     options:{responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{labels:{font:{size:10}, boxWidth:8}}},
+      plugins:{legend:{labels:{font:{size:9}, boxWidth:8}}},
       scales:{
-        x:{title:{display:true,text:'DAP (days after planting)',font:{size:10}}, ticks:{font:{size:10}}},
-        y:{title:{display:true,text:'CH4 mg/m2/d',font:{size:10}}, ticks:{font:{size:10}}}
+        x:{title:{display:true, text:'Week', font:{size:10}}, ticks:{font:{size:9}}},
+        y:{title:{display:true, text:'mV', font:{size:9}}, ticks:{font:{size:9}}},
+        y2:{position:'right', title:{display:true, text:'pH', font:{size:9}}, ticks:{font:{size:9}}, grid:{drawOnChartArea:false}}
       }
+    }
+  });
+
+  charts.soilTemp = new Chart(document.getElementById('chartSoilTemp'), {
+    type:'line',
+    data:{labels:[], datasets:[{label:'Soil temp', data:[], borderColor:'#E85D04', tension:0.3, pointRadius:2, fill:true, backgroundColor:'rgba(232,93,4,0.08)'}]},
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{
+        x:{title:{display:true, text:'Week', font:{size:10}}, ticks:{font:{size:9}}},
+        y:{title:{display:true, text:'\u00b0C', font:{size:9}}, ticks:{font:{size:9}}}
+      }
+    }
+  });
+
+  charts.plantHeight = new Chart(document.getElementById('chartPlantHeight'), {
+    type:'line',
+    data:{labels:['20','40','60','80'], datasets:[]},
+    options:{responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{labels:{font:{size:8}, boxWidth:8}}},
+      scales:{
+        x:{title:{display:true, text:'DAP', font:{size:10}}, ticks:{font:{size:9}}},
+        y:{title:{display:true, text:'cm', font:{size:9}}, ticks:{font:{size:9}}}
+      }
+    }
+  });
+
+  charts.tillers = new Chart(document.getElementById('chartTillers'), {
+    type:'line',
+    data:{labels:['20','40','60','80'], datasets:[]},
+    options:{responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{labels:{font:{size:8}, boxWidth:8}}},
+      scales:{
+        x:{title:{display:true, text:'DAP', font:{size:10}}, ticks:{font:{size:9}}},
+        y:{title:{display:true, text:'tillers', font:{size:9}}, ticks:{font:{size:9}}}
+      }
+    }
+  });
+
+  charts.harvest = new Chart(document.getElementById('chartHarvest'), {
+    type:'bar',
+    data:{labels:[], datasets:[
+      {label:'Filled grain (%)',       data:[], backgroundColor:'rgba(31,92,0,0.75)'},
+      {label:'1000-seed weight (g)',  data:[], backgroundColor:'rgba(204,153,0,0.75)'},
+      {label:'Grains/panicle \u00f710', data:[], backgroundColor:'rgba(67,97,238,0.75)'}
+    ]},
+    options:{responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{labels:{font:{size:9}, boxWidth:8}}},
+      scales:{x:{ticks:{font:{size:9}}}, y:{ticks:{font:{size:9}}}}
     }
   });
 }
@@ -681,14 +769,19 @@ function parseRow(row) {
 }
 
 function getSection(rows, name) {
-  var hi=-1, di=-1;
+  var found=-1;
   for (var i=0; i<rows.length; i++) {
-    if (rows[i][0]===name) { hi=i+1; di=i+2; break; }
+    if (rows[i][0]===name) { found=i; break; }
+  }
+  if (found<0) return [];
+  var hi=-1;
+  for (var i=found+1; i<Math.min(found+6,rows.length); i++) {
+    if (rows[i].some(function(c){ return c.trim()!==''; })) { hi=i; break; }
   }
   if (hi<0) return [];
-  var headers=rows[hi].filter(function(h){return h;});
+  var headers=rows[hi].filter(function(h){ return h.trim()!==''; });
   var out=[];
-  for (var i=di; i<rows.length; i++) {
+  for (var i=hi+1; i<rows.length; i++) {
     if (!rows[i][0] || rows[i][0].indexOf('Summary_')===0) break;
     var obj={};
     headers.forEach(function(h,j){ obj[h]=rows[i][j]||''; });
@@ -698,38 +791,178 @@ function getSection(rows, name) {
 }
 
 function setEl(id, val) {
-  var el = document.getElementById(id);
-  if (el && val !== undefined && val !== '') el.textContent = val;
+  var el=document.getElementById(id);
+  if (el && val!==undefined && val!=='') el.textContent=val;
 }
 
 // ── Main fetch & cache ──
 function updateDashboard(text) {
-  // Handle newline dalam quoted fields sebelum split
   var cleaned = text.replace(/"([^"]*)"/g, function(match, inner) {
-    return '"' + inner.replace(/\n/g, ' ') + '"';
+    return '"' + inner.replace(/\n/g,' ') + '"';
   });
   var rows = cleaned.split('\n').map(parseRow);
   cachedData = {
-    meta:      getSection(rows, 'Summary_Meta'),
-    kpi:       getSection(rows, 'Summary_KPI'),
-    ts:        getSection(rows, 'Summary_TimeSeries'),
-    treatment: getSection(rows, 'Summary_Treatment'),
-    mapData:   getSection(rows, 'Summary_MapData'),
-    obs:       getSection(rows, 'Summary_Obs')
+    meta:        getSection(rows, 'Summary_Meta'),
+    kpi:         getSection(rows, 'Summary_KPI'),
+    ts:          getSection(rows, 'Summary_TimeSeries'),
+    treatment:   getSection(rows, 'Summary_Treatment'),
+    mapData:     getSection(rows, 'Summary_MapData'),
+    obs:         getSection(rows, 'Summary_Obs'),
+    weather:     getSection(rows, 'Summary_Weather'),
+    waterDepth:  getSection(rows, 'Summary_WaterDepth'),
+    soilChem:    getSection(rows, 'Summary_SoilChem'),
+    plantGrowth: getSection(rows, 'Summary_PlantGrowth'),
+    harvest:     getSection(rows, 'Summary_Harvest')
   };
   renderAll();
 }
 
 function fetchData() {
-  var badge = document.getElementById('badge-treatments');
-  if (badge) badge.textContent = 'Syncing...';
+  var badge=document.getElementById('badge-treatments');
+  if (badge) badge.textContent='Syncing...';
   fetch(CSV_URL)
-    .then(function(r) { return r.text(); })
-    .then(function(t) { updateDashboard(t); })
-    .catch(function(e) {
+    .then(function(r){ return r.text(); })
+    .then(function(t){ updateDashboard(t); })
+    .catch(function(e){
       console.error('Fetch failed:', e);
-      badge.textContent = 'Offline mode';
+      badge.textContent='Offline mode';
     });
+}
+
+// ── Environment ──
+function renderEnvironment() {
+  var wd_raw = bySeason(cachedData.weather || []);
+  // Daily: sort by date
+  wd_raw.sort(function(a,b){ return new Date(a.date) - new Date(b.date); });
+  var wlabels = wd_raw.map(function(d){
+    var dt = new Date(d.date);
+    return !isNaN(dt.getTime()) ? (dt.getDate()+'/'+(dt.getMonth()+1)) : d.date;
+  });
+  if (charts.weather) {
+    charts.weather.data.labels = wlabels;
+    charts.weather.data.datasets[0].data = wd_raw.map(function(d){ return d.avg_rainfall!==''?parseFloat(d.avg_rainfall):null; });
+    charts.weather.data.datasets[1].data = wd_raw.map(function(d){ return d.max_temp!==''?parseFloat(d.max_temp):null; });
+    charts.weather.data.datasets[2].data = wd_raw.map(function(d){ return d.min_temp!==''?parseFloat(d.min_temp):null; });
+    charts.weather.update();
+  }
+  // Water depth: multi-line per treatment, weekly
+  var wdepth = bySeason(cachedData.waterDepth || []);
+  var weeks = [], tMap = {};
+  wdepth.forEach(function(d){
+    if (d.week && weeks.indexOf(d.week)<0) weeks.push(d.week);
+    if (!tMap[d.treatment]) tMap[d.treatment]=[];
+    tMap[d.treatment].push(d);
+  });
+  weeks.sort(function(a,b){ return parseFloat(a)-parseFloat(b); });
+  var wdDatasets = Object.keys(tMap).sort().map(function(t){
+    return {
+      label:t, borderColor:treatColors[t]||'#888', borderWidth:1.5,
+      pointRadius:2, tension:0.3, fill:false,
+      data: weeks.map(function(w){
+        var row = tMap[t].find(function(d){ return d.week===w; });
+        return row&&row.avg_water_depth!==''?parseFloat(row.avg_water_depth):null;
+      })
+    };
+  });
+  if (charts.waterDepth) {
+    charts.waterDepth.data.labels = weeks;
+    charts.waterDepth.data.datasets = wdDatasets;
+    charts.waterDepth.update();
+  }
+}
+
+// ── Soil chemistry ──
+function renderSoilChem() {
+  var sc = bySeason(cachedData.soilChem || []);
+  sc.sort(function(a,b){ return parseInt(a.week)-parseInt(b.week); });
+  var scLabels = sc.map(function(d){ return d.week; });
+  if (charts.soilChem) {
+    charts.soilChem.data.labels = scLabels;
+    charts.soilChem.data.datasets[0].data = sc.map(function(d){ return d.redox_potential!==''?parseFloat(d.redox_potential):null; });
+    charts.soilChem.data.datasets[1].data = sc.map(function(d){ return d.pH!==''?parseFloat(d.pH):null; });
+    charts.soilChem.update();
+  }
+  if (charts.soilTemp) {
+    charts.soilTemp.data.labels = scLabels;
+    charts.soilTemp.data.datasets[0].data = sc.map(function(d){ return d.soil_temp!==''?parseFloat(d.soil_temp):null; });
+    charts.soilTemp.update();
+  }
+}
+
+// ── Agronomy ──
+function renderAgronomy() {
+  var pg = bySeason(cachedData.plantGrowth || []);
+  var dapValues = [], tMap = {};
+  pg.forEach(function(d){
+    if (d.dap && dapValues.indexOf(d.dap)<0) dapValues.push(d.dap);
+    if (!tMap[d.treatment]) tMap[d.treatment]=[];
+    tMap[d.treatment].push(d);
+  });
+  dapValues.sort(function(a,b){ return parseInt(a)-parseInt(b); });
+  var treatments = Object.keys(tMap).sort();
+  var heightDs = treatments.map(function(t){
+    return {
+      label:t, borderColor:treatColors[t]||'#888', borderWidth:1.5,
+      pointRadius:3, tension:0.3, fill:false, spanGaps:true,
+      data: dapValues.map(function(dap){
+        var row = tMap[t].find(function(d){ return d.dap===dap; });
+        return row&&row.avg_plant_height!==''?parseFloat(row.avg_plant_height):null;
+      })
+    };
+  });
+  var tillerDs = treatments.map(function(t){
+    return {
+      label:t, borderColor:treatColors[t]||'#888', borderWidth:1.5,
+      pointRadius:3, tension:0.3, fill:false, spanGaps:true,
+      data: dapValues.map(function(dap){
+        var row = tMap[t].find(function(d){ return d.dap===dap; });
+        return row&&row.avg_tillers!==''?parseFloat(row.avg_tillers):null;
+      })
+    };
+  });
+  if (charts.plantHeight) {
+    charts.plantHeight.data.labels = dapValues;
+    charts.plantHeight.data.datasets = heightDs;
+    charts.plantHeight.update();
+  }
+  if (charts.tillers) {
+    charts.tillers.data.labels = dapValues;
+    charts.tillers.data.datasets = tillerDs;
+    charts.tillers.update();
+  }
+}
+
+// ── Harvest outcomes ──
+function renderHarvest() {
+  var hv = bySeason(cachedData.harvest || []);
+  if (!hv.length) return;
+  function best(metric) {
+    return hv.reduce(function(m,d){ return parseFloat(d[metric]||0)>parseFloat(m[metric]||0)?d:m; }, hv[0]);
+  }
+  var bGrain = best('filled_grain_pct');
+  var bSeed  = best('seed_weight_1000');
+  var bGPan  = best('grain_per_panicle');
+  setEl('kpi-harvest-grain',      bGrain.filled_grain_pct  ? parseFloat(bGrain.filled_grain_pct).toFixed(1)  : '-');
+  setEl('kpi-harvest-grain-t',    bGrain.treatment ? 'Best: '+bGrain.treatment : '-');
+  setEl('kpi-harvest-seed',       bSeed.seed_weight_1000   ? parseFloat(bSeed.seed_weight_1000).toFixed(1)   : '-');
+  setEl('kpi-harvest-seed-t',     bSeed.treatment  ? 'Best: '+bSeed.treatment  : '-');
+  setEl('kpi-harvest-grain-pan',  bGPan.grain_per_panicle  ? parseFloat(bGPan.grain_per_panicle).toFixed(0)  : '-');
+  setEl('kpi-harvest-grain-pan-t',bGPan.treatment  ? 'Best: '+bGPan.treatment  : '-');
+  if (charts.harvest) {
+    charts.harvest.data.labels = hv.map(function(d){ return d.treatment; });
+    charts.harvest.data.datasets[0].data = hv.map(function(d){ return d.filled_grain_pct!==''?parseFloat(d.filled_grain_pct):null; });
+    charts.harvest.data.datasets[1].data = hv.map(function(d){ return d.seed_weight_1000!==''?parseFloat(d.seed_weight_1000):null; });
+    charts.harvest.data.datasets[2].data = hv.map(function(d){ return d.grain_per_panicle!==''?parseFloat(d.grain_per_panicle)/10:null; });
+    charts.harvest.update();
+  }
+}
+
+// ── Map data ──
+function renderMapData() {
+  var md = bySeason(cachedData.mapData || []);
+  mapDataLookup = {};
+  md.forEach(function(d){ mapDataLookup[d.plot_code] = d; });
+  renderMap();
 }
 
 // ── Init ──
