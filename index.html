@@ -208,11 +208,11 @@ body{font-family:'Poppins',Helvetica,Arial,sans-serif;background:var(--bg);color
   <div id="ptab-dashboard" class="ptab-content active">
 
   <div class="metric-row">
-    <div class="metric"><div class="lbl">AVG CH&#8324; FLUX</div><div class="val" id="kpi-ch4-val">-</div><div class="unit">mg CH&#8324; m&#8315;&#178; day&#8315;&#185;</div><div class="delta" id="kpi-ch4-delta">loading...</div></div>
-    <div class="metric"><div class="lbl">AVG N&#8322;O FLUX</div><div class="val" id="kpi-n2o-val">-</div><div class="unit">mg N&#8322;O m&#8315;&#178; day&#8315;&#185;</div><div class="delta" id="kpi-n2o-delta">loading...</div></div>
-    <div class="metric"><div class="lbl">TOTAL PLOTS</div><div class="val" id="kpi-plots-val">-</div><div class="unit" id="kpi-plots-unit">-</div><div class="delta delta-neu">Grobogan site</div></div>
-    <div class="metric"><div class="lbl">TOTAL GWP</div><div class="val" id="kpi-gwp-val">-</div><div class="unit">CO&#8322;-eq kg ha&#8315;&#185;</div><div class="delta" id="kpi-gwp-delta">-</div></div>
-    <div class="metric"><div class="lbl">OBSERVATIONS</div><div class="val" id="kpi-obs-val">-</div><div class="unit">total data points</div><div class="delta" id="kpi-obs-delta">-</div></div>
+    <div class="metric"><div class="lbl">AVG CH&#8324; FLUX</div><div class="val" id="kpi-ch4-val">-</div><div class="unit">mg CH&#8324; m&#8315;&#178; day&#8315;&#185;</div></div>
+    <div class="metric"><div class="lbl">AVG N&#8322;O FLUX</div><div class="val" id="kpi-n2o-val">-</div><div class="unit">mg N&#8322;O m&#8315;&#178; day&#8315;&#185;</div></div>
+    <div class="metric"><div class="lbl">TOTAL PLOTS</div><div class="val" id="kpi-plots-val">-</div><div class="unit" id="kpi-plots-unit">-</div></div>
+    <div class="metric"><div class="lbl">TOTAL GWP</div><div class="val" id="kpi-gwp-val">-</div><div class="unit">t CO&#8322;e ha&#8315;&#185;</div></div>
+    <div class="metric"><div class="lbl">OBSERVATIONS</div><div class="val" id="kpi-obs-val">-</div><div class="unit">total data points</div></div>
   </div>
   <div class="section-hdr">Emission trends &amp; treatment comparison</div>
   <div class="grid-2">
@@ -593,15 +593,9 @@ function renderKPI() {
       setEl('kpi-plots-unit', 'Trial 1: ' + kpiMap.trial1.value + ' · Trial 2: ' + kpiMap.trial2.value);
     }
     if (kpiMap.observations) { setEl('kpi-obs-val', kpiMap.observations.value); }
-    if (kpiMap.avg_ch4 && kpiMap.avg_ch4.delta) {
-      var dCh4 = kpiMap.avg_ch4.delta;
-      var elCh4 = document.getElementById('kpi-ch4-delta');
-      if (elCh4) { elCh4.textContent = (dCh4[0]==='+' ? '↑ ':'↓ ') + dCh4 + ' vs prev'; elCh4.className = 'delta '+(dCh4[0]==='+' ? 'delta-up':'delta-dn'); }
-    }
-    if (kpiMap.avg_n2o && kpiMap.avg_n2o.delta) {
-      var dN2o = kpiMap.avg_n2o.delta;
-      var elN2o = document.getElementById('kpi-n2o-delta');
-      if (elN2o) { elN2o.textContent = (dN2o[0]==='-' ? '↓ ':'↑ ') + dN2o + ' vs prev'; elN2o.className = 'delta '+(dN2o[0]==='-' ? 'delta-dn':'delta-up'); }
+    // total_gwp
+    if (kpiMap.total_gwp && kpiMap.total_gwp.value && kpiMap.total_gwp.value !== '-' && kpiMap.total_gwp.value !== '') {
+      setEl('kpi-gwp-val', parseFloat(kpiMap.total_gwp.value).toLocaleString());
     }
   }
 }
